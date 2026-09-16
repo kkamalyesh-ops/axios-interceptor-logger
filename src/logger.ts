@@ -205,7 +205,7 @@ export class AxiosLoggerSingleton {
       ecs: { version: '8.0.0' },
       agent: {
         name: 'axios-interceptor-logger',
-        type: 'packetbeat',
+        type: 'axios-logger',
         version: '1.0.0'
       },
       event: {

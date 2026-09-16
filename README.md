@@ -13,55 +13,43 @@ This allows you to inject application-layer traffic directly into Elasticsearch/
 - ⏱️ **Nanosecond Latency**: Tracks transaction duration down to the nanosecond, mapped to `event.duration`.
 - 🔗 **Correlation IDs**: Generates (or passes through) UUID trace IDs for distributed tracing.
 
-## Installation from GitHub
+## Installation
 
-To install this package directly from your public GitHub repository, you first need to push this code to GitHub.
-
-### 1. Push to GitHub
-Create a new public repository on GitHub (e.g., named `axios-interceptor-logger`), and push this code:
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/YOUR_GITHUB_USERNAME/axios-interceptor-logger.git
-git push -u origin main
-```
-
-### 2. Install in your Consumer App
-Once published as a public repository, you or anyone else can install it directly via npm using the GitHub URL format:
+Install the package directly from npm:
 
 ```bash
-npm install github:YOUR_GITHUB_USERNAME/axios-interceptor-logger
+npm install axios-interceptor-logger
 ```
-*(Replace `YOUR_GITHUB_USERNAME` with your actual GitHub username).*
 
 ## Usage
 
-Import the `AxiosLoggerSingleton` and attach it to your Axios instance(s). 
+Import the `AxiosLoggerSingleton` and attach it to your Axios instance(s).
 
 ```typescript
-import axios from 'axios';
-import { AxiosLoggerSingleton } from 'axios-interceptor-logger';
+import axios from "axios";
+import { AxiosLoggerSingleton } from "axios-interceptor-logger";
 
 // 1. Initialize the Logger Configuration
 const logger = AxiosLoggerSingleton.getInstance({
   verbose: true, // Prints ECS logs to the console
   maxPayloadBytes: 5000, // Truncates massive JSON bodies
-  redactKeys: ['password', 'secret', 'token', 'authorization'],
-  ignoreDomains: ['localhost'],
+  redactKeys: ["password", "secret", "token", "authorization"],
+  ignoreDomains: ["localhost"],
 });
 
 // 2. Create an Axios Instance
 const apiClient = axios.create({
-  baseURL: 'https://api.example.com',
+  baseURL: "https://api.example.com",
 });
 
 // 3. Attach the Interceptor
 logger.attach(apiClient);
 
 // 4. Make requests (they will now be automatically logged in ECS format!)
-await apiClient.post('/login', { username: 'admin', password: 'supersecretpassword' });
+await apiClient.post("/login", {
+  username: "admin",
+  password: "supersecretpassword",
+});
 ```
 
 ## Environment Variables
@@ -78,7 +66,7 @@ The logger intercepts the traffic and outputs standard Packetbeat ECS JSON:
   "ecs": { "version": "8.0.0" },
   "agent": {
     "name": "axios-interceptor-logger",
-    "type": "packetbeat",
+    "type": "axios-logger",
     "version": "1.0.0"
   },
   "event": {

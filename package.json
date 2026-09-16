@@ -3,13 +3,41 @@
   "version": "1.0.0",
   "description": "Axios Unified HTTP Transaction Logger",
   "main": "dist/index.js",
+  "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean --minify",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "Kamalyesh Kannadkar <kkamalyesh@gmail.com>",
+  "keywords": [
+    "axios",
+    "interceptor",
+    "logger",
+    "packetbeat",
+    "ecs",
+    "elastic",
+    "logging"
+  ],
+  "author": "Kamalyesh Kannadkar <k.kamalyesh@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kkamalyesh-ops/axios-interceptor-logger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kkamalyesh-ops/axios-interceptor-logger/issues"
+  },
+  "homepage": "https://github.com/kkamalyesh-ops/axios-interceptor-logger#readme",
   "dependencies": {},
   "peerDependencies": {
     "axios": "^1.0.0"

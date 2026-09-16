@@ -1,0 +1,17 @@
+# Ignore TypeScript source code
+src/
+
+# Ignore examples and tests
+example/
+tests/
+jest.config.js
+tsconfig.json
+
+# Ignore config and hidden files
+.github/
+.gitignore
+.gemini/
+.agent
+
+# Ignore local environment files
+.env
