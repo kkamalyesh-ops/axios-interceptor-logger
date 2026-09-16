@@ -1,0 +1,23 @@
+{
+  "name": "axios-interceptor-logger",
+  "version": "1.0.0",
+  "description": "Axios Unified HTTP Transaction Logger",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean --minify",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "Kamalyesh Kannadkar <kkamalyesh@gmail.com>",
+  "dependencies": {},
+  "peerDependencies": {
+    "axios": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "axios": "^1.6.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}
