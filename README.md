@@ -67,7 +67,7 @@ The logger intercepts the traffic and outputs standard Packetbeat ECS JSON:
   "agent": {
     "name": "axios-interceptor-logger",
     "type": "axios-logger",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "event": {
     "start": "2026-09-11T09:34:31.799Z",

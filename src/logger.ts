@@ -206,7 +206,7 @@ export class AxiosLoggerSingleton {
       agent: {
         name: 'axios-interceptor-logger',
         type: 'axios-logger',
-        version: '1.0.0'
+        version: '1.0.1'
       },
       event: {
         start: startTimeStr,
