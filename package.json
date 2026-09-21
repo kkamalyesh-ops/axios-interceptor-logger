@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean --minify",
-    "test": "jest"
+    "test": "NODE_OPTIONS='--max-old-space-size=16' node --import tsx --test tests/**/*.test.ts"
   },
   "keywords": [
     "axios",
@@ -38,7 +38,6 @@
     "url": "https://github.com/kkamalyesh-ops/axios-interceptor-logger/issues"
   },
   "homepage": "https://github.com/kkamalyesh-ops/axios-interceptor-logger#readme",
-  "dependencies": {},
   "peerDependencies": {
     "axios": "^1.0.0"
   },
@@ -46,6 +45,7 @@
     "@types/node": "^20.0.0",
     "axios": "^1.6.0",
     "tsup": "^8.0.0",
+    "tsx": "^4.23.13",
     "typescript": "^5.0.0"
   }
 }
