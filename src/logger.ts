@@ -4,8 +4,12 @@ import { AxiosLoggerConfig, LogEntry, LogTransport } from './types';
 import { sanitize } from './sanitizer';
 import { ConsoleTransport } from './transports/console';
 import { FileTransport } from './transports/file';
+import { LIB_VERSION } from './version';
 
-const TRACKING_SYMBOL = '_axios_logging_metadata' as unknown as symbol; // Cast as symbol to maintain typings below without rewriting everything
+// A real Symbol so this metadata never shows up in Object.keys/JSON.stringify
+// of the caller's axios config — a plain string key would leak into any code
+// that inspects or logs that config elsewhere.
+const TRACKING_SYMBOL = Symbol('axios_logging_metadata');
 
 interface TrackingMetadata {
   id: string;
@@ -17,14 +21,24 @@ function uuidValidate(uuid: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(uuid);
 }
 
+function assertNodeEnvironment(): void {
+  const isNode = typeof process !== 'undefined' && !!process.versions && !!process.versions.node;
+  if (!isNode) {
+    throw new Error(
+      '[axios-interceptor-logger] This library uses Node.js core modules (fs, crypto) and is not supported outside a Node.js runtime (e.g. browser bundles).'
+    );
+  }
+}
+
 export class AxiosLoggerSingleton {
   private static instance: AxiosLoggerSingleton;
   private config: AxiosLoggerConfig;
   private transport: LogTransport;
 
   private constructor(config?: AxiosLoggerConfig) {
+    assertNodeEnvironment();
     this.config = config || {};
-    
+
     if (this.config.customLogger) {
       this.transport = this.config.customLogger;
     } else if (this.config.transportMode === 'otlp') {
@@ -206,7 +220,7 @@ export class AxiosLoggerSingleton {
       agent: {
         name: 'axios-interceptor-logger',
         type: 'axios-logger',
-        version: '1.0.1'
+        version: LIB_VERSION
       },
       event: {
         start: startTimeStr,

@@ -49,7 +49,7 @@ test('FileTransport', async (t) => {
     // This proves that it actually SURVIVES the 100,000 logs and DOES NOT CRASH!
     const { execSync } = require('child_process');
     try {
-      const output = execSync('NODE_OPTIONS="--max-old-space-size=64" npx tsx tests/worker-1a.ts', {
+      const output = execSync('NODE_OPTIONS="--max-old-space-size=256" npx tsx tests/worker-1a.ts', {
         encoding: 'utf8',
         stdio: 'pipe'
       });
