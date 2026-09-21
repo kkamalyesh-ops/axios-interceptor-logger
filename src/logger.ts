@@ -107,7 +107,7 @@ export class AxiosLoggerSingleton {
       return response;
     }
 
-    this.logTransaction(response.config as InternalAxiosRequestConfig, response, null);
+    setImmediate(() => this.logTransaction(response.config as InternalAxiosRequestConfig, response, null));
     return response;
   }
 
@@ -152,7 +152,7 @@ export class AxiosLoggerSingleton {
       }
     }
 
-    this.logTransaction(config, error.response, error, unlinked);
+    setImmediate(() => this.logTransaction(config, error.response, error, unlinked));
 
     return Promise.reject(error);
   }
@@ -245,6 +245,7 @@ export class AxiosLoggerSingleton {
     if (response) {
       const resHeaders = response.headers ? sanitize({ ...response.headers }, this.config.redactKeys, this.config.maxPayloadBytes) : {};
       let resBytes: number | undefined;
+      // TODO: fallback for chunked responses (no content-length) — compute from JSON.stringify(response.data) for object bodies
       if (resHeaders['content-length']) resBytes = parseInt(resHeaders['content-length'] as string, 10);
       else if (response.data && typeof response.data === 'string') resBytes = Buffer.byteLength(response.data, 'utf8');
 
@@ -258,8 +259,8 @@ export class AxiosLoggerSingleton {
 
     if (error) {
       entry.error = {
-        message: error.message,
-        code: error.code || (error as AxiosError).code
+        message: error.message ? String(error.message) : 'Unknown error',
+        code: error.code || (error as AxiosError).code ? String(error.code || (error as AxiosError).code) : undefined
       };
     }
 
