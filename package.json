@@ -30,6 +30,9 @@
   ],
   "author": "Kamalyesh Kannadkar <k.kamalyesh@gmail.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kkamalyesh-ops/axios-interceptor-logger.git"
