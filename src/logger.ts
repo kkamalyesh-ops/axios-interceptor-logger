@@ -11,6 +11,12 @@ import { LIB_VERSION } from './version';
 // that inspects or logs that config elsewhere.
 const TRACKING_SYMBOL = Symbol('axios_logging_metadata');
 
+// Tracks which axios modules/instances already had their `.create()` wrapped,
+// so attach() stays idempotent if called again on the same object (e.g. a
+// singleton re-attaching, or a created instance whose own `.create()` is
+// patched on the way in).
+const PATCHED_CREATE = new WeakSet<object>();
+
 interface TrackingMetadata {
   id: string;
   startTime: number;
@@ -50,6 +56,12 @@ export class AxiosLoggerSingleton {
     } else {
       this.transport = new FileTransport(this.config.filePath);
     }
+
+    if (!this.config.sourceDomain && typeof process !== 'undefined' && process.env && process.env.APP_HOST) {
+      console.warn(
+        '[axios-interceptor-logger] The APP_HOST environment variable is deprecated and will be removed in a future release. Pass `sourceDomain` to AxiosLoggerSingleton.getInstance() instead.'
+      );
+    }
   }
 
   public static getInstance(config?: AxiosLoggerConfig): AxiosLoggerSingleton {
@@ -70,12 +82,37 @@ export class AxiosLoggerSingleton {
       (error) => this.handleError(error)
     );
 
+    if (this.config.autoPatchCreate !== false) {
+      this.patchCreateIfPresent(axiosInstance);
+    }
+
     return {
       eject: () => {
         axiosInstance.interceptors.request.eject(requestInterceptorId);
         axiosInstance.interceptors.response.eject(responseInterceptorId);
       }
     };
+  }
+
+  // axios.create()'d instances get their own independent interceptor stack —
+  // attach() only ever sees the exact instance it was handed. When that
+  // instance also exposes `.create()` (the top-level `axios` default export,
+  // or any instance produced by it), wrap `.create()` so every instance it
+  // produces from here on is attach()'d automatically, with no per-call-site
+  // wiring required from the consumer.
+  private patchCreateIfPresent(target: unknown): void {
+    const candidate = target as { create?: (config?: any) => AxiosInstance };
+    if (typeof candidate.create !== 'function' || PATCHED_CREATE.has(candidate as object)) {
+      return;
+    }
+
+    PATCHED_CREATE.add(candidate as object);
+    const originalCreate = candidate.create.bind(candidate);
+    candidate.create = ((config?: any) => {
+      const instance = originalCreate(config);
+      this.attach(instance);
+      return instance;
+    }) as typeof candidate.create;
   }
 
   private isDomainIgnored(reqConfig?: InternalAxiosRequestConfig): boolean {
@@ -213,6 +250,10 @@ export class AxiosLoggerSingleton {
     const startTimeStr = new Date(metadata.startTime).toISOString();
     const durationNs = latencyMs * 1000000;
     const domain = parsedUrl ? parsedUrl.hostname : 'unknown';
+    const sourceDomain =
+      this.config.sourceDomain ||
+      (typeof process !== 'undefined' && process.env && process.env.APP_HOST) ||
+      'localhost';
 
     const entry: LogEntry = {
       '@timestamp': timestamp,
@@ -248,7 +289,7 @@ export class AxiosLoggerSingleton {
         domain: domain,
         port: portNumber
       },
-      source: { domain: typeof process !== 'undefined' && process.env && process.env.APP_HOST ? process.env.APP_HOST : 'localhost' },
+      source: { domain: sourceDomain },
       destination: { domain },
       server: { domain },
       network: { protocol: 'http' },

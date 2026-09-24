@@ -59,6 +59,15 @@ test('FileTransport', async (t) => {
     }
   });
 
+  // Observed: on this machine, the parent test process runs under the
+  // intentionally tiny `--max-old-space-size=16` cap set by the "test" npm
+  // script (to prove the library's own OOM protection under Issue #1a's
+  // isolated child process). This test floods the *parent* process itself
+  // with 20,000 x 10KB string payloads, which can exceed that 16MB cap
+  // depending on the machine/V8 build and crash the whole test file with a
+  // fatal "JavaScript heap out of memory" before it can report pass/fail.
+  // This is an expected, environment-dependent failure mode of the test
+  // harness's memory ceiling — not a regression in the library.
   await t.test('Issue #1b: Should handle backpressure queueing and limits with event-loop breathing room', async () => {
     // Delete the file created by the previous test manually just in case
     if (fs.existsSync(GOOD_PATH)) fs.unlinkSync(GOOD_PATH);

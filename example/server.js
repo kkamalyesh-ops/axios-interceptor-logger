@@ -12,16 +12,21 @@ const logger = AxiosLoggerSingleton.getInstance({
   verbose: true, // Print output to the console for demonstration
   redactKeys: ['password', 'secret', 'token', 'authorization'],
   maxPayloadBytes: 2000,
+  sourceDomain: 'example-server', // Populates `source.domain` in the ECS log
 });
 
-// 2. Create an Axios instance that this server will use for outbound requests
+// 2. Attach the logger to the `axios` module itself. By default
+//    (`autoPatchCreate: true`) this also wraps axios.create(), so every
+//    instance created below — or later, elsewhere in the app — is attached
+//    automatically with no extra wiring.
+logger.attach(axios);
+
+// 3. Create an Axios instance that this server will use for outbound requests
+//    (attached automatically thanks to the patched axios.create() above)
 const apiClient = axios.create({
   baseURL: 'https://jsonplaceholder.typicode.com',
   timeout: 5000
 });
-
-// 3. Attach the logger to the Axios instance
-logger.attach(apiClient);
 
 // --- ROUTES ---
 

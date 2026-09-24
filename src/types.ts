@@ -71,4 +71,14 @@ export interface AxiosLoggerConfig {
   otlpEndpoint?: string;
   customLogger?: LogTransport;
   verbose?: boolean;
+  sourceDomain?: string;
+  /**
+   * When `attach()` is called on an axios module/instance that exposes its own
+   * `.create()` (e.g. the default `axios` export), automatically wrap that
+   * `.create()` so every instance it produces afterwards is attach()'d too —
+   * axios.create()'d instances otherwise have an independent interceptor
+   * stack that attach() never sees. Defaults to `true`; set `false` to manage
+   * attaching to created instances yourself.
+   */
+  autoPatchCreate?: boolean;
 }

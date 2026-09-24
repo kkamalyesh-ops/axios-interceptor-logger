@@ -4,18 +4,22 @@ import { AxiosLoggerSingleton } from 'axios-interceptor-logger';
 // Initialize Logger
 const logger = AxiosLoggerSingleton.getInstance({
   verbose: true,
-  maxPayloadBytes: 5000, 
+  maxPayloadBytes: 5000,
   redactKeys: ['password', 'secret', 'token'],
   ignoreDomains: ['localhost'],
+  sourceDomain: 'usage-example', // Populates `source.domain` in the ECS log (replaces the deprecated APP_HOST env var)
 });
 
-// Create Axios Instance
+// Attach to the `axios` module itself rather than one instance. By default
+// (`autoPatchCreate: true`) this also wraps axios.create(), so any instance
+// created afterwards — like httpsClient below — is attached automatically,
+// with no explicit logger.attach(httpsClient) call needed.
+logger.attach(axios);
+
+// Create Axios Instance (attached automatically via the patched axios.create())
 const httpsClient = axios.create({
   baseURL: 'https://httpbin.org',
 });
-
-// Attach Logger
-logger.attach(httpsClient);
 
 async function runExamples() {
   console.log('\n=========================================');
